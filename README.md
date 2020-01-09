@@ -1,2 +1,2 @@
-# Artificial-Intelligence
-An introduction to applied examples of machine learning and AI
+# Artificial Intelligence
+A repository to organize and track my neural network algorithms.

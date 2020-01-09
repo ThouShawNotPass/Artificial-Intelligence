@@ -1,0 +1,2 @@
+More information can be found here:
+https://stackoverflow.com/questions/499166/mapping-n-dimensional-value-to-a-point-on-hilbert-curve?rq=1
