@@ -9,49 +9,51 @@ To start using this package, you need to import the HilbertCurve class from the 
 With the package installed, you can:
 1. Convert coordinates to hilbert distances
 
-     '''python
-     from DimensionReduction import HilbertCurve
+'''python
+from DimensionReduction import HilbertCurve
 
-     iterations = 3 # side length is 2**iterations
-     num_dimensions = 2 # max value is 2**
+num_iterations = 3
+num_dimensions = 2
 
-     hilbert_curve = HilbertCurve(iterations, num_dimensions)
+hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
 
-     for coords in [[0, 0], [0, 1], [1, 1], [1, 0]]:
-          dist = hilbert_curve.distance_from_coordinates(coords)
-          print(coords, "-->", dist)
-     '''
+for coords in [[0, 0], [0, 1], [1, 1], [1, 0]]:
+     dist = hilbert_curve.distance_from_coordinates(coords)
+     print(coords, "-->", dist)
+'''
 
-     Output:
+Output:
 
-     '''
-     [0, 0] --> 0
-     [0, 1] --> 1
-     [1, 1] --> 2
-     [1, 0] --> 3
-     '''
+'''
+[0, 0] --> 0
+[0, 1] --> 1
+[1, 1] --> 2
+[1, 0] --> 3
+'''
 
 2. Calculate coordinates given hilbert distances:
 
-     '''python
-     from DimensionReduction import HilbertCurve
+'''python
+from DimensionReduction import HilbertCurve
 
-     iterations = 3 # side length is 2**iterations
-     num_dimensions = 2 # max value is 2**
+num_iterations = 3
+num_dimensions = 2
 
-     for dist in range(4):
-          coords = hilbert_curve.coordinates_from_distance(dist)
-          print(dist, "-->", coords)
-     '''
+hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
 
-     Output:
+for dist in range(4):
+     coords = hilbert_curve.coordinates_from_distance(dist)
+     print(dist, "-->", coords)
+'''
 
-     '''
-     0 --> [0, 0]
-     1 --> [0, 1]
-     2 --> [1, 1]
-     3 --> [1, 0]
-     '''
+Output:
+
+'''
+0 --> [0, 0]
+1 --> [0, 1]
+2 --> [1, 1]
+3 --> [1, 0]
+'''
 
 # TODO
 
