@@ -9,43 +9,44 @@ To start using this package, you need to import the HilbertCurve class from the 
 With the package installed, you can:
 1. Convert coordinates to hilbert distances
 
-> from DimensionReduction import HilbertCurve
-> 
-> num_iterations = 3
-> num_dimensions = 2
-> 
-> hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
-> 
-> for coords in [[0, 0], [0, 1], [1, 1], [1, 0]]:
->      dist = hilbert_curve.distance_from_coordinates(coords)
->      print(coords, "-->", dist)
+     from DimensionReduction import HilbertCurve
+
+     num_iterations = 3
+     num_dimensions = 2
+
+     hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
+
+     for coords in [[0, 0], [0, 1], [1, 1], [1, 0]]:
+          dist = hilbert_curve.distance_from_coordinates(coords)
+          print(coords, "-->", dist)
+
 
 Output:
 
-> [0, 0] --> 0
-> [0, 1] --> 1
-> [1, 1] --> 2
-> [1, 0] --> 3
+     [0, 0] --> 0
+     [0, 1] --> 1
+     [1, 1] --> 2
+     [1, 0] --> 3
 
 2. Calculate coordinates given hilbert distances:
 
-> from DimensionReduction import HilbertCurve
-> 
-> num_iterations = 3
-> num_dimensions = 2
-> 
-> hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
-> 
-> for dist in range(4):
->      coords = hilbert_curve.coordinates_from_distance(dist)
->      print(dist, "-->", coords)
+     from DimensionReduction import HilbertCurve
+
+     num_iterations = 3
+     num_dimensions = 2
+
+     hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
+
+     for dist in range(4):
+          coords = hilbert_curve.coordinates_from_distance(dist)
+          print(dist, "-->", coords)
 
 Output:
 
-> 0 --> [0, 0]
-> 1 --> [0, 1]
-> 2 --> [1, 1]
-> 3 --> [1, 0]
+     0 --> [0, 0]
+     1 --> [0, 1]
+     2 --> [1, 1]
+     3 --> [1, 0]
 
 # TODO
 
