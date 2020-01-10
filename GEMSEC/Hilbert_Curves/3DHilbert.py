@@ -14,24 +14,41 @@
 #       \ |        \ |                   \  |         \  v      
 #      [0,1,0]----- [1,1,0]              [0,1,0]     [1,1,0] 
 
+# TODO
+# Whats the difference between maximum distance and maximum coordinate value?
+# What is the difference between the hilbert integer ('h') and its transpose list ('x')?
+# 
+
 # Ideas:
 #    Instead of outputting a number between 0 and n^2 - 1, we could constrict the range of
 #         values of d to be between 0 and 1 and express the length as a percentage. Then as you
 #         scale up the resolution of the hilbert space, you would approach the same percentage.
 
+# ################################################################################################
+                                            ABOUT
+# ################################################################################################
 
-"""
-This is a module to convert between one dimensional distance along a
-`Hilbert curve`_, :math:`h`, and N-dimensional coordinates,
-:math:`(x_0, x_1, ... x_N)`.  The two important parameters are :math:`N`
-(the number of dimensions, must be > 0) and :math:`p` (the number of
-iterations used in constructing the Hilbert curve, must be > 0).
-We consider an N-dimensional `hypercube`_ of side length :math:`2^p`.
-This hypercube contains :math:`2^{N p}` unit hypercubes (:math:`2^p` along
-each dimension).  The number of unit hypercubes determine the possible
-discrete distances along the Hilbert curve (indexed from :math:`0` to
-:math:`2^{N p} - 1`).
-"""
+# The following code was translated from C to python by reddit user galtay. Their repository 
+# can be found here: https://github.com/galtay/hilbertcurve/blob/develop/hilbertcurve/hilbertcurve.py
+
+# This module is based on the C code provided in the 2004 article "Programming the Hilbert Curve" 
+# by John Skilling found here: http://adsabs.harvard.edu/abs/2004AIPC..707..381S
+
+# There is also an interesting Stack Overflow post about variable dimension reduction with Hilbert Curves
+# http://stackoverflow.com/questions/499166/mapping-n-dimensional-value-to-a-point-on-hilbert-curve
+
+# ################################################################################################
+
+# This is a module to convert between one dimensional distance along a
+# `Hilbert curve`_, :math:`h`, and N-dimensional coordinates,
+# :math:`(x_0, x_1, ... x_N)`.  The two important parameters are :math:`N`
+# (the number of dimensions, must be > 0) and :math:`p` (the number of
+# iterations used in constructing the Hilbert curve, must be > 0).
+# We consider an N-dimensional `hypercube`_ of side length :math:`2^p`.
+# This hypercube contains :math:`2^{N p}` unit hypercubes (:math:`2^p` along
+# each dimension).  The number of unit hypercubes determine the possible
+# discrete distances along the Hilbert curve (indexed from :math:`0` to
+# :math:`2^{N p} - 1`).
 
 # Return a binary string representation of 'num' zero padded to 'width' bits.
 def _binary_repr(num, width):
