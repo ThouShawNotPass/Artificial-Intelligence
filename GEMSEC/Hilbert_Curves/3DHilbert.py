@@ -33,66 +33,62 @@ discrete distances along the Hilbert curve (indexed from :math:`0` to
 :math:`2^{N p} - 1`).
 """
 
-
+# Return a binary string representation of 'num' zero padded to 'width' bits.
 def _binary_repr(num, width):
-    """Return a binary string representation of `num` zero padded to `width`
-    bits."""
     return format(num, 'b').zfill(width)
 
 
 class HilbertCurve:
 
+# Initialize a hilbert curve with the given arguments
+# Args:
+#    p (int): number of iterations to use in the hilbert curve
+#    n (int): number of dimensions
     def __init__(self, p, n):
-        """Initialize a hilbert curve with,
-        Args:
-            p (int): iterations to use in the hilbert curve
-            n (int): number of dimensions
-        """
+
+        # Check that p and n are both positive.
         if p <= 0:
             raise ValueError('p must be > 0')
         if n <= 0:
             raise ValueError('n must be > 0')
+
         self.p = p
         self.n = n
 
+        # TODO: Why is this different?
         # maximum distance along curve
         self.max_h = 2**(self.p * self.n) - 1
 
         # maximum coordinate value in any dimension
         self.max_x = 2**self.p - 1
 
+# Store a hilbert integer (`h`) as its transpose (`x`).
+# TODO: What is the hilbert integer's transpose mean (list x)?
+# Args:
+#     h (int): integer distance along hilbert curve (1D)
+# Returns:
+#     x (list): transpose of h (n components with values between 0 and 2^p-1)
     def _hilbert_integer_to_transpose(self, h):
-        """Store a hilbert integer (`h`) as its transpose (`x`).
-        Args:
-            h (int): integer distance along hilbert curve
-        Returns:
-            x (list): transpose of h
-                      (n components with values between 0 and 2**p-1)
-        """
         h_bit_str = _binary_repr(h, self.p*self.n)
         x = [int(h_bit_str[i::self.n], 2) for i in range(self.n)]
         return x
 
+# Restore a hilbert integer (`h`) from its transpose (`x`).
+# Args:
+#     x (list): transpose of h (n components with values between 0 and 2**p-1)
+# Returns:
+#     h (int): integer distance along hilbert curve
     def _transpose_to_hilbert_integer(self, x):
-        """Restore a hilbert integer (`h`) from its transpose (`x`).
-        Args:
-            x (list): transpose of h
-                      (n components with values between 0 and 2**p-1)
-        Returns:
-            h (int): integer distance along hilbert curve
-        """
         x_bit_str = [_binary_repr(x[i], self.p) for i in range(self.n)]
         h = int(''.join([y[i] for i in range(self.p) for y in x_bit_str]), 2)
         return h
 
+# Return the coordinates for a given hilbert distance.
+# Args:
+#    h (int): integer distance along hilbert curve
+# Returns:
+#    x (list): transpose of h (n components with values between 0 and 2**p-1)
     def coordinates_from_distance(self, h):
-        """Return the coordinates for a given hilbert distance.
-        Args:
-            h (int): integer distance along hilbert curve
-        Returns:
-            x (list): transpose of h
-                      (n components with values between 0 and 2**p-1)
-        """
         if h > self.max_h:
             raise ValueError('h={} is greater than 2**(p*N)-1={}'.format(h, self.max_h))
         if h < 0:
@@ -125,14 +121,12 @@ class HilbertCurve:
         # done
         return x
 
+# Return the hilbert distance for a given set of coordinates.
+# Args:
+#     x_in (list): transpose of h (n components with values between 0 and 2**p-1)
+# Returns:
+#     h (int): integer distance along hilbert curve
     def distance_from_coordinates(self, x_in):
-        """Return the hilbert distance for a given set of coordinates.
-        Args:
-            x_in (list): transpose of h
-                         (n components with values between 0 and 2**p-1)
-        Returns:
-            h (int): integer distance along hilbert curve
-        """
         x = list(x_in)
         if len(x) != self.n:
             raise ValueError('x={} must have N={} dimensions'.format(x, self.n))
