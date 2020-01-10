@@ -1,7 +1,3 @@
-# Artificial Intelligence
-
-A repository to organize and track my neural network algorithms.
-
 # Get Started
 
 To start using this package, you need to import the HilbertCurve class from the file DimensionReduction.py (be sure they are in the same directory). To construct a HilbertCurve object, you will need to pass two integers to the constructor; the number of iterations, and the number of dimensions.
@@ -19,7 +15,7 @@ With the package installed, you can:
           for coords in [[0, 0], [0, 1], [1, 1], [1, 0]]:
                dist = hilbert_curve.distance_from_coordinates(coords)
                print(coords, "-->", dist)
-     
+
      Output:
 
           [0, 0] --> 0
