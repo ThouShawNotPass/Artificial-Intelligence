@@ -1,14 +1,8 @@
 from DimensionReduction import HilbertCurve
+from ProteinDataBank import PeptideCSV
 
-iterations = 3 # side length is 2**iterations
-num_dimensions = 2 # max value is 2**
+pdb_big = '/Users/Justin/Desktop/GitHub/AI/Artificial-Intelligence/GEMSEC/PDB_Files/3GFT.pdb'
+pdb_small = '/Users/Justin/Desktop/GitHub/AI/Artificial-Intelligence/GEMSEC/PDB_Files/1A3I.pdb'
 
-hilbert_curve = HilbertCurve(iterations, num_dimensions)
-
-for coords in [[0, 0], [0, 1], [1, 1], [1, 0]]:
-     dist = hilbert_curve.distance_from_coordinates(coords)
-     print(coords, "-->", dist)
-
-# for dist in range(4):
-#      coords = hilbert_curve.coordinates_from_distance(dist)
-#      print(dist, "-->", coords)
+csv_file = PeptideCSV(pdb_big)
+csv_file.pdb_to_hilbert()
