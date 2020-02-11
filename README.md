@@ -73,9 +73,9 @@ The program will create a new CSV file based on the contents of the original PDB
 
 # Library
 
-- Introduction to Statistical Learning
+- [Introduction to Statistical Learning](http://faculty.marshall.usc.edu/gareth-james/ISL/ISLR%20Seventh%20Printing.pdf)
 
-- Elements of Statistical Learning
+- [Elements of Statistical Learning](https://web.stanford.edu/~hastie/Papers/ESLII.pdf)
 
 - Data Driven Science and Engineering (Brunton and Kutz)
 
