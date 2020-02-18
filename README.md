@@ -1,8 +1,15 @@
 <p align="center">
   <a href="http://www.gemsec.washington.edu/" target="_blank" >
-    <img alt="GEMSEC" src="GEMSEC/img/gemsec_logo.png" width="200" />
+    <img alt="GEMSEC" src="GEMSEC/img/gemsec_logo.png" width="400" />
   </a>
 </p>
+<p align="center">
+     <a href="https://github.com/ThouShawNotPass/Artificial-Intelligence/blob/master/LICENSE" target="_blank">
+        <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square">
+    </a>
+</p>
+
+
 # Hilbert Curve - Dimension Reduction
 A python library for converting PDB files into CSV files where XYZ coordinates can be transformed into Hilbert Distances.
 
