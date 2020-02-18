@@ -69,7 +69,7 @@ The program will create a new CSV file based on the contents of the original PDB
 
 # TODO
 
-- Research DMD
+- None.
 
 # Library
 
