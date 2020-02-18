@@ -89,7 +89,7 @@ class PeptideCSV:
                hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
 
                pdb.seek(0) # move pointer back to start
-               row = 1
+               row = 0
                for line in pdb:
                     list = line.split() # split line into words by spaces
                     id = list[0] # look at the first word in each line
@@ -101,6 +101,9 @@ class PeptideCSV:
 
                          coords = [x, y, z]
                          dist = hilbert_curve.distance_from_coordinates(coords)
+                         if (len(self.data) == row):
+                              empty = []
+                              self.data.append(empty)
                          self.data[row].append(dist)
 
                     elif id == 'MODEL':
