@@ -8,7 +8,8 @@ class PeptideCSV:
      def __init__(self, pdb_file):
           
           # Check that file is a pdb_file
-          extension = pdb_file.split('.')
+          path = pdb_file.split('/')
+          extension = path[len(path) - 1].split('.')
           if len(extension) < 2 or extension[1] != "pdb":
                raise Exception('Filename should end with ".pdb"')
           if len(extension) > 2:
@@ -20,14 +21,21 @@ class PeptideCSV:
                length = len(firstLine)
                if length < 1:
                     raise Exception('First line of file should not be empty')
-               if firstLine[0] != 'HEADER':
-                    raise Exception('File header is not in PDB format')
-               protein_name = firstLine[length - 1]
+               if firstLine[0] == 'HEADER':
+                    protein_name = firstLine[length - 1]
+               else:
+                    protein_name = extension[0]
 
           self.data = []
           self.max_value = -1
           self.input = pdb_file
           self.output = protein_name
+
+          
+     # # # # # # # # # # #
+     # Multi- PDB Frame  #
+     # # # # # # # # # # #
+
 
      # Reads in Hilbert Distances from PDB file and writes output to a csv file
      def pdb_to_hilbert(self):
@@ -36,8 +44,84 @@ class PeptideCSV:
                writer = csv.writer(csv_file)
                writer.writerows(self.data)
 
+     def _get_hilbert(self):
+
+          min_x = 999999999 # arbitrarily
+          min_y = 999999999 # large
+          min_z = 999999999 # numbers
+
+          max_x = -1 # arbitrarily
+          max_y = -1 # small
+          max_z = -1 # numbers
+
+          with open(self.input, 'r') as pdb:
+               frame = 0
+               atoms = []
+               for line in pdb:
+                    list = line.split() # split line into list of words by spaces
+                    id = list[0] # look at the first word in each line
+                    if id == "MODEL":
+                         frame += 1                         
+                    elif id == 'ATOM':
+                         if frame == 1:
+                              atom = int(list[1])
+                              atoms.append(atom)
+                         
+                         # calculate XYZ values
+                         x = int(float(list[6]) * 1000)
+                         y = int(float(list[7]) * 1000)
+                         z = int(float(list[8]) * 1000)
+
+                         # calculate minimum values
+                         min_x = min(x, min_x)
+                         min_y = min(y, min_y)
+                         min_z = min(z, min_z)
+
+                         # calculate maximum values
+                         max_x = max(x, max_x)
+                         max_y = max(y, max_y)
+                         max_z = max(z, max_z)
+
+               self.data.append(atoms)
+               self.max_value = max(max_x - min_x, max_y - min_y, max_z - min_z)
+               num_dimensions = 3
+               num_iterations = math.ceil(math.log(self.max_value, 2))
+               hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
+
+               pdb.seek(0) # move pointer back to start
+               row = 1
+               for line in pdb:
+                    list = line.split() # split line into words by spaces
+                    id = list[0] # look at the first word in each line
+                    if id == 'ATOM':
+                         # Convert string -> float -> int -> positive int
+                         x = int(float(list[6]) * 1000) - min_x
+                         y = int(float(list[7]) * 1000) - min_y
+                         z = int(float(list[8]) * 1000) - min_z
+
+                         coords = [x, y, z]
+                         dist = hilbert_curve.distance_from_coordinates(coords)
+                         self.data[row].append(dist)
+
+                    elif id == 'MODEL':
+                         row += 1
+          pdb.close()
+          
+
+     # # # # # # # # # # #
+     # Single PDB Frame  #
+     # # # # # # # # # # #
+
+
+     # Reads in Hilbert Distances from PDB file and writes output to a csv file
+     def pdb_to_hilbert_single_frame(self):
+          self._get_hilbert_single_frame() # updates self.data[]
+          with open(self.output + ".csv", "w") as csv_file:
+               writer = csv.writer(csv_file)
+               writer.writerows(self.data)
+
      # Update self.data[] to include PDB information including xyz coordinates
-     def _get_xyz(self):
+     def _get_xyz_single_frame(self):
 
           self.data = [["FRAME", "ATOM", "RESIDUE", "CHAIN", "SEQUENCE", "X", "Y", "Z"]]
 
@@ -70,9 +154,10 @@ class PeptideCSV:
                          max_z = max(z, max_z)
 
                self.max_value = max(max_x - min_x, max_y - min_y, max_z - min_z)
+               
 
                pdb.seek(0) # move pointer back to start
-               frame = 1
+               frame = 0
                for line in pdb:
                     list = line.split() # split line into words by spaces
                     id = list[0] # look at the first word in each line
@@ -91,14 +176,14 @@ class PeptideCSV:
                          # write a new value to the data array
                          row = [frame, atom, residue, chain, sequence, x, y, z]
                          self.data.append(row)
-                    elif id == 'TER':
+                    elif id == 'MODEL':
                          frame += 1
           pdb.close()
 
      # Updates self.data[] to use hilbert distances instead of xyz coordinates
-     def _get_hilbert(self):
+     def _get_hilbert_single_frame(self):
 
-          self._get_xyz()
+          self._get_xyz_single_frame()
 
           # Update the column headers
           self.data[0].remove("X")
