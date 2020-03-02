@@ -1,6 +1,9 @@
 from DimensionReduction import HilbertCurve
-import math
-import csv
+from pydmd import DMD
+from pydmd import MrDMD
+import matplotlib.pyplot as plt
+import numpy as np
+import math, csv
 
 # This class lets you convert PDB files to CSV format
 class PeptideCSV:
@@ -30,6 +33,7 @@ class PeptideCSV:
           self.max_value = -1
           self.input = pdb_file
           self.output = protein_name
+          self.hilbertCurve = HilbertCurve(1, 1)
 
           
      # # # # # # # # # # #
@@ -86,7 +90,7 @@ class PeptideCSV:
                self.max_value = max(max_x - min_x, max_y - min_y, max_z - min_z)
                num_dimensions = 3
                num_iterations = math.ceil(math.log(self.max_value, 2))
-               hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
+               self.hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
 
                pdb.seek(0) # move pointer back to start
                row = 0
@@ -100,7 +104,7 @@ class PeptideCSV:
                          z = int(float(list[8]) * 1000) - min_z
 
                          coords = [x, y, z]
-                         dist = hilbert_curve.distance_from_coordinates(coords)
+                         dist = self.hilbert_curve.distance_from_coordinates(coords)
                          if (len(self.data) == row):
                               empty = []
                               self.data.append(empty)
@@ -199,7 +203,7 @@ class PeptideCSV:
           num_dimensions = 3
 
           # construct a new Hilbert Curve object
-          hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
+          self.hilbert_curve = HilbertCurve(num_iterations, num_dimensions)
           
           # change all the [x, y, z] coordinates to hilbert distances
           for i in range(1, len(self.data)):
@@ -215,7 +219,164 @@ class PeptideCSV:
 
                # Convert coordinates into hilbert distances
                coords = [x, y, z]
-               dist = hilbert_curve.distance_from_coordinates(coords)
+               dist = self.hilbert_curve.distance_from_coordinates(coords)
                
                # Update the values in self.data[]
                self.data[i].append(dist)
+
+     # Dynamic Mode Decomposition
+     def run_dmd(self):
+
+          def _plot_data():
+               atom_axis, time_axis = np.meshgrid(time, atoms)
+
+               plt.figure(figsize=(7, 8))
+               plt.subplot(2, 1, 1)
+               plt.title("Original PDB data")
+               plt.pcolormesh(time_axis, atom_axis, snapshot_matrix)
+               plt.xlabel("Atom Index")
+               plt.ylabel("Frame")
+               plt.colorbar()
+               plt.subplot(2, 1, 2)
+               plt.title("Reconstructed with DMD")
+               plt.pcolormesh(time_axis, atom_axis, dmd.reconstructed_data.real)
+               plt.xlabel("Atom Index")
+               plt.ylabel("Frame")
+               plt.colorbar()
+               plt.show()
+
+          def _plot_modes():
+               plt.figure(figsize=(8, 8))
+               for mode in dmd.modes.T:
+                    plt.plot(atoms, mode)
+                    plt.title('Modes')
+               plt.show()
+
+          def _plot_dynamics():
+               plt.figure(figsize=(8, 8))
+               for dynamic in dmd.dynamics:
+                    plt.plot(time, dynamic)
+                    plt.title('Dynamics')
+               plt.show()
+          
+          def _print_eigs():
+               for eig in dmd.eigs:
+                    dist = np.abs(eig.imag**2 + eig.real**2 - 1)
+                    print("Eigenvalue:", eig, " Distance from unit circle:", dist)
+          
+          def _plot_eigs():
+               dmd.plot_eigs(show_axes=True, show_unit_circle=True)
+
+          def _print_error():
+               error = np.linalg.norm(snapshot_matrix - dmd.reconstructed_data)
+               print("DMD error:", error)
+
+          def _plot_error():
+               plt.pcolormesh(time, atoms, (snapshot_matrix - dmd.reconstructed_data).real)
+               plt.colorbar()
+               plt.show()
+
+          self._get_hilbert() # updates self.data[]
+
+          snapshot_matrix = np.array(self.data[1:365]).transpose()
+
+          dmd = DMD(svd_rank = 2, tlsq_rank = 2, exact = True, opt = True) # create instance of DMD object
+          dmd.fit(snapshot_matrix) # populate the matrix with data
+          
+          num_atoms = len(self.data[0])
+          num_frames = len(snapshot_matrix[0])
+
+          atoms = np.linspace(1, num_atoms, num_atoms)
+          time = np.linspace(1, num_frames, num_frames)
+
+          _plot_data()
+          # _plot_modes()
+          # _plot_dynamics()
+          # _print_eigs()
+          # _plot_eigs()
+          # _print_error()
+          # _plot_error()
+
+     def run_mrdmd(self):
+
+          ''' MrDMD builds a tree-like structure that is max_levels deep:
+                    if current_level < 2**(self.max_level - 1):
+                         current_level += 1
+               /opt/anaconda3/lib/python3.7/site-packages/pydmd/mrdmd.py
+          '''
+
+          def _plot_data(title, time, atoms, data):
+               atom_axis, time_axis = np.meshgrid(atoms, time)
+
+               plt.figure(figsize=(8, 8))
+               plt.title(title)
+               plt.pcolormesh(atom_axis, time_axis, data)
+               plt.xlabel("Atom Index")
+               plt.ylabel("Frame")
+               plt.colorbar()
+               plt.show()
+
+          def _print_eigs(dmd):
+               print('There are', dmd.eigs.shape[0], 'eigenvalues.')
+
+          def _plot_eigs(dmd):
+               dmd.plot_eigs(show_axes=True, show_unit_circle=True, figsize=(8, 8))
+
+          def _plot_partial_modes(dmd, atoms, level):
+               partial_modes = dmd.partial_modes(level)
+               plt.plot(atoms, partial_modes.real)
+               plt.show()
+
+          def _plot_partial_dynamics(dmd, time, level):
+               partial_dynamics = dmd.partial_dynamics(level)
+               plt.plot(time, partial_dynamics.real.T)
+               plt.show()
+
+          def _plot_all_levels(dmd, levels, atoms, time):
+               for i in range(1, levels + 1):
+                    partial_data = dmd.partial_reconstructed_data(level=i)
+                    for j in range(i):
+                         partial_data += dmd.partial_reconstructed_data(level=j)
+                    _plot_data("DMD Levels 0-" + str(i), time, atoms, partial_data.real.T)
+
+          def _plot_side_by_side(dmd, time, atoms, snapshots):
+               plt.figure(figsize=(8, 7))
+               plt.subplot(1, 2, 1)
+               plt.title("Original PDB data")
+               plt.pcolormesh(atoms, time, snapshots.T)
+               plt.xlabel("Atom Index")
+               plt.ylabel("Frame")
+               plt.colorbar()
+               plt.subplot(1, 2, 2)
+               plt.title("Reconstructed with MrDMD")
+               plt.pcolormesh(atoms, time, dmd.reconstructed_data.real.T)
+               plt.xlabel("Atom Index")
+               plt.ylabel("Frame")
+               plt.colorbar()
+               plt.show()
+
+          def _run_main():
+               self._get_hilbert() # updates self.data[]
+
+               snapshots = np.array(self.data[1:257]).transpose() # first 18 nanoseconds
+               num_levels = int(np.floor(np.log2(snapshots.shape[1]/8))) + 1 # calc from mrdmd.py
+               num_atoms = len(self.data[0])
+               num_frames = len(snapshots[0])
+               atoms = np.linspace(1, num_atoms, num_atoms)
+               time = np.linspace(1, num_frames, num_frames)
+
+               # first_dmd = DMD(svd_rank=-1) # Prints the original data with 
+               # first_dmd.fit(snapshots) # a basic DMD algorithm
+
+               dmd = MrDMD(svd_rank=-1, max_level=num_levels, max_cycles=1)
+               dmd.fit(snapshots.astype('float64'))
+
+               # _plot_side_by_side(dmd, time, atoms, snapshots)
+               # _plot_data("Reconstructed MrDMD", time, atoms, dmd.reconstructed_data.real)
+               # _print_eigs(dmd)
+               _plot_eigs(dmd)
+               _plot_partial_modes(dmd, atoms, 0)
+               _plot_partial_dynamics(dmd, time, 2)
+               _plot_all_levels(dmd, num_levels, atoms, time)
+          
+          _run_main()
