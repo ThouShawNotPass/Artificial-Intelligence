@@ -25,9 +25,9 @@ class PeptideCSV:
                if length < 1:
                     raise Exception('First line of file should not be empty')
                if firstLine[0] == 'HEADER':
-                    protein_name = firstLine[length - 1]
+                    protein_name = firstLine[length - 1] # name of peptide
                else:
-                    protein_name = extension[0]
+                    protein_name = extension[0] # name of file
 
           self.data = []
           self.max_value = -1
@@ -69,12 +69,14 @@ class PeptideCSV:
                     elif id == 'ATOM':
                          if frame == 1:
                               atom = int(list[1])
-                              atoms.append(atom)
-                         
+                              atoms.append(atom) # add atom number to the list of atoms
+                         # elif list[2] == N:
+
+
                          # calculate XYZ values
-                         x = int(float(list[6]) * 1000)
-                         y = int(float(list[7]) * 1000)
-                         z = int(float(list[8]) * 1000)
+                         x = int(float(list[6]) * 100)
+                         y = int(float(list[7]) * 100)
+                         z = int(float(list[8]) * 100)
 
                          # calculate minimum values
                          min_x = min(x, min_x)
@@ -85,8 +87,10 @@ class PeptideCSV:
                          max_x = max(x, max_x)
                          max_y = max(y, max_y)
                          max_z = max(z, max_z)
+                    # elif id == 'ENDMDL':
+                         # process last model
 
-               self.data.append(atoms)
+               self.data.append(atoms) # add each atom number as the first row
                self.max_value = max(max_x - min_x, max_y - min_y, max_z - min_z)
                num_dimensions = 3
                num_iterations = math.ceil(math.log(self.max_value, 2))
@@ -99,9 +103,9 @@ class PeptideCSV:
                     id = list[0] # look at the first word in each line
                     if id == 'ATOM':
                          # Convert string -> float -> int -> positive int
-                         x = int(float(list[6]) * 1000) - min_x
-                         y = int(float(list[7]) * 1000) - min_y
-                         z = int(float(list[8]) * 1000) - min_z
+                         x = int(float(list[6]) * 100) - min_x
+                         y = int(float(list[7]) * 100) - min_y
+                         z = int(float(list[8]) * 100) - min_z
 
                          coords = [x, y, z]
                          dist = self.hilbert_curve.distance_from_coordinates(coords)
@@ -146,9 +150,9 @@ class PeptideCSV:
                     id = list[0] # look at the first word in each line
                     if id == 'ATOM':
                          # calculate XYZ values
-                         x = int(float(list[6]) * 1000)
-                         y = int(float(list[7]) * 1000)
-                         z = int(float(list[8]) * 1000)
+                         x = int(float(list[6]) * 100)
+                         y = int(float(list[7]) * 100)
+                         z = int(float(list[8]) * 100)
 
                          # calculate minimum values
                          min_x = min(x, min_x)
@@ -170,9 +174,9 @@ class PeptideCSV:
                     id = list[0] # look at the first word in each line
                     if id == 'ATOM':
                          # Convert string -> float -> int -> positive int
-                         x = int(float(list[6]) * 1000) - min_x
-                         y = int(float(list[7]) * 1000) - min_y
-                         z = int(float(list[8]) * 1000) - min_z
+                         x = int(float(list[6]) * 100) - min_x
+                         y = int(float(list[7]) * 100) - min_y
+                         z = int(float(list[8]) * 100) - min_z
 
                          # collect data for current row
                          atom      = list[2]
@@ -299,7 +303,7 @@ class PeptideCSV:
 
      def run_mrdmd(self):
 
-          ''' MrDMD builds a tree-like structure that is max_levels deep:
+          '''  MrDMD builds a tree-like structure that is max_levels deep:
                     if current_level < 2**(self.max_level - 1):
                          current_level += 1
                /opt/anaconda3/lib/python3.7/site-packages/pydmd/mrdmd.py
@@ -343,22 +347,31 @@ class PeptideCSV:
                plt.figure(figsize=(8, 7))
                plt.subplot(1, 2, 1)
                plt.title("Original PDB data")
-               plt.pcolormesh(atoms, time, snapshots.T)
+               plt.pcolormesh(atoms, time, snapshots.T, cmap='viridis')
                plt.xlabel("Atom Index")
                plt.ylabel("Frame")
                plt.colorbar()
                plt.subplot(1, 2, 2)
                plt.title("Reconstructed with MrDMD")
-               plt.pcolormesh(atoms, time, dmd.reconstructed_data.real.T)
+               plt.pcolormesh(atoms, time, dmd.reconstructed_data.real.T, cmap='viridis')
                plt.xlabel("Atom Index")
                plt.ylabel("Frame")
                plt.colorbar()
                plt.show()
 
+          def _plot_side_by_side_new(dmd, time, atoms, snapshots):
+               fig, axs = plt.subplots(1, 2)
+               plots = [snapshots.T, dmd.reconstructed_data.real.T]
+               for col in range(2):
+                    ax = axs[col]
+                    pcm = ax.pcolormesh(plots[col], cmap='viridis')
+               fig.colorbar(pcm, ax=axs[col])
+               plt.show()
+
           def _run_main():
                self._get_hilbert() # updates self.data[]
 
-               snapshots = np.array(self.data[1:257]).transpose() # first 18 nanoseconds
+               snapshots = np.array(self.data[1:]).transpose() # first 18 nanoseconds
                num_levels = int(np.floor(np.log2(snapshots.shape[1]/8))) + 1 # calc from mrdmd.py
                num_atoms = len(self.data[0])
                num_frames = len(snapshots[0])
@@ -372,11 +385,12 @@ class PeptideCSV:
                dmd.fit(snapshots.astype('float64'))
 
                # _plot_side_by_side(dmd, time, atoms, snapshots)
+               # _plot_side_by_side_new(dmd, time, atoms, snapshots)
                # _plot_data("Reconstructed MrDMD", time, atoms, dmd.reconstructed_data.real)
                # _print_eigs(dmd)
                _plot_eigs(dmd)
-               _plot_partial_modes(dmd, atoms, 0)
-               _plot_partial_dynamics(dmd, time, 2)
-               _plot_all_levels(dmd, num_levels, atoms, time)
+               # _plot_partial_modes(dmd, atoms, 0)
+               # _plot_partial_dynamics(dmd, time, 2)
+               # _plot_all_levels(dmd, num_levels, atoms, time)
           
           _run_main()

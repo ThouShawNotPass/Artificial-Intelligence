@@ -10,7 +10,7 @@ test = '/Users/Justin/Desktop/GitHub/AI/Artificial-Intelligence/GEMSEC/PDB_Files
 # csv_small = '3GFT.csv'
 # csv_tiny = '1A3I.csv'
 
-file = pdb_big
+file = test
 
 def pdb_to_csv():
      csv_file = PeptideCSV(file)
