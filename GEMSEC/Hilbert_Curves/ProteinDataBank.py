@@ -13,10 +13,10 @@ class PDB():
      NUM_ATOMS           = 182
 
 # This class lets you convert PDB files to CSV format
-class PeptideCSV():     
+class PeptideCSV():
 
      def __init__(self, pdb_file):
-          
+
           # Check that file is a pdb_file
           path = pdb_file.split('/')
           extension = path[len(path) - 1].split('.')
@@ -456,16 +456,16 @@ class PeptideCSV():
                reconstructed_data = _truncate_dmd(dmd)
 
                # return _find_xyz_dist(reconstructed_data, snapshots)
-               _plot_side_by_side(reconstructed_data, time, atoms, snapshots)
+               # _plot_side_by_side(reconstructed_data, time, atoms, snapshots)
                _plot_side_by_side_new(reconstructed_data, time, atoms, snapshots)
-               _plot_data("Reconstructed MrDMD", time, atoms, reconstructed_data)
-               _print_eigs(dmd)
-               _plot_eigs(dmd)
-               print('Mean Error:', _find_xyz_dist(reconstructed_data, snapshots), 'Angstroms')
-               _plot_error(snapshots, dmd, time, atoms)
-               _plot_partial_modes(dmd, atoms, 0)
-               _plot_partial_dynamics(dmd, time, 2)
-               _plot_all_levels(dmd, num_levels, atoms, time)
+               # _plot_data("Reconstructed MrDMD", time, atoms, reconstructed_data)
+               # _print_eigs(dmd)
+               # _plot_eigs(dmd)
+               # print('Mean Error:', _find_xyz_dist(reconstructed_data, snapshots), 'Angstroms')
+               # _plot_error(snapshots, dmd, time, atoms)
+               # _plot_partial_modes(dmd, atoms, 0)
+               # _plot_partial_dynamics(dmd, time, 2)
+               # _plot_all_levels(dmd, num_levels, atoms, time)
           # return _run_main()
           _run_main()
 
