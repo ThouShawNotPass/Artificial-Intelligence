@@ -14,7 +14,6 @@ def run_test():
     csv_file.run_test()
 
 csv_file = PeptideCSV()
-# run_test()
-run_mrdmd()
+run_test()
+# run_mrdmd()
 # run_dmd()
-# run all dmd
